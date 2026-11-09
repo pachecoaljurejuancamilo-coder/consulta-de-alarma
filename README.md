@@ -20,10 +20,10 @@ Juego web educativo para el taller de gamificación de la sustentación del art�
 | 0. Ingreso: nombre y semestre | sin tiempo | |
 | 1. Consulta: 3 pacientes, marcar signos de alarma y decidir | 1:45 (35 s por paciente) | Liz |
 | 2. Lo que encontramos: 4 preguntas sobre el artículo | 0:45 | Juan Camilo |
-| 3. Tu opinión: 4 preguntas cortas | 0:30 | Gino |
+| 3. Tu opinión: 4 preguntas cortas | 0:30 (más lo que haya sobrado, hasta completar 3:00) | Gino |
 | 4. Resultados, repaso de errores y ranking | no cuenta | los tres |
 
-Si el jugador responde rápido, el juego avanza de inmediato. Si se agota el tiempo de una etapa, avanza solo. Nunca pasa de 3:00.
+Si el jugador responde rápido, el juego avanza de inmediato. Si se agota el tiempo de una etapa, avanza solo. El tiempo que sobre pasa a la etapa 3, así que quien no pulse «Terminar turno» termina exactamente en 3:00. Nunca pasa de 3:00.
 
 Puntaje: +10 por tarjeta bien clasificada, +30 por decisión clínica correcta, hasta +15 por rapidez en cada paciente, +20 por pregunta correcta. Rangos: Interno curioso (menos de 150), Residente atento (150 a 249), Especialista en alarma (250 o más).
 

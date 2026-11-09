@@ -854,7 +854,8 @@ async function etapaOpinion() {
   setEtapa(3, 'Etapa 3 · Tu opinión');
   const ahora = performance.now();
   const restanteGlobal = TIEMPOS.total * 1000 - (ahora - partida.t0);
-  const presupuesto = Math.max(0, Math.min(TIEMPOS.etapaOpinion * 1000, restanteGlobal));
+  // Al menos 30 s y, si sobró tiempo de las etapas anteriores, hasta completar los 3:00 exactos
+  const presupuesto = Math.max(0, restanteGlobal);
   const finEtapa = ahora + presupuesto;
   const gino = TUTORES.gino;
   const claves = ['entendiste', 'innovador', 'reconocerias', 'palabra'];
