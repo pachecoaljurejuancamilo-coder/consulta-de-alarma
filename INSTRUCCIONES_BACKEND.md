@@ -21,17 +21,20 @@ El juego funciona sin esto, pero así podrán ver todas las respuestas y el rank
 5. Google pedirá permisos: **Autorizar acceso**, elige tu cuenta. Si sale «Google no verificó esta app», pulsa **Configuración avanzada > Ir a … (no seguro)** y luego **Permitir**. Es seguro: el script es tuyo y solo escribe en tu hoja.
 6. Copia la **URL de la aplicación web** (termina en `/exec`).
 
-## 3. Pegar la URL en el juego
+## 3. Pegar la URL en el juego (desde la página de GitHub, 1 minuto)
 
-Abre el archivo `public/config.js` y pega la URL entre las comillas:
+1. Abre https://github.com/pachecoaljurejuancamilo-coder/consulta-de-alarma/edit/gh-pages/config.js
+   (es el archivo `config.js` de la rama **gh-pages**, la que está publicada).
+2. Pega la URL entre las comillas:
 
-```js
-window.CONFIG_JUEGO = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/XXXXXXXX/exec',
-};
-```
+   ```js
+   window.CONFIG_JUEGO = {
+     APPS_SCRIPT_URL: 'https://script.google.com/macros/s/XXXXXXXX/exec',
+   };
+   ```
 
-Luego publica el cambio. La forma más fácil es desde la página del repositorio en GitHub: abre `public/config.js`, pulsa el lápiz ✏️ (**Edit**), pega la URL y pulsa **Commit changes**. En unos 2 minutos el juego publicado se actualiza solo.
+3. Pulsa **Commit changes**. En 1 o 2 minutos el juego y el tablero publicados ya usan Google Sheets.
+4. Para que no se pierda si vuelven a publicar con `npm run publicar`, pega la misma URL en `public/config.js` de la carpeta del proyecto.
 
 ## 4. Comprobar que funciona
 

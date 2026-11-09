@@ -31,11 +31,17 @@ Puntaje: +10 por tarjeta bien clasificada, +30 por decisión clínica correcta, 
 
 Todo el contenido está en **`src/data/contenido.js`**: pacientes, hallazgos (`tipo: 'alarma'` o `'esperable'`), explicaciones, preguntas (la **primera opción es la correcta**; en pantalla se barajan), opiniones, rangos y tiempos.
 
-Después de editar, sube el cambio a GitHub (o edita el archivo directamente en la página de GitHub con el lápiz ✏️). La publicación se actualiza sola en unos 2 minutos.
+Después de editar, publica el cambio con:
+
+```bash
+npm run publicar
+```
+
+Eso compila el juego y lo sube a la rama `gh-pages`. En 1 o 2 minutos se ve en el enlace. Guarda también tu cambio en la rama `main` (`git add -A`, `git commit`, `git push`).
 
 ## Guardar respuestas en Google Sheets
 
-Sigue **`INSTRUCCIONES_BACKEND.md`**: pega `apps-script/Code.gs` en Apps Script, publícalo como aplicación web y pega la URL en **`public/config.js`**. Sin esa URL el juego funciona igual: guarda las respuestas en cada celular y las envía cuando la URL exista.
+Sigue **`INSTRUCCIONES_BACKEND.md`**: pega `apps-script/Code.gs` en Apps Script, publícalo como aplicación web y pega la URL en **`config.js`** de la rama `gh-pages` (se puede hacer desde la página de GitHub, sin compilar nada). Para que no se pierda en la próxima publicación, pégala también en `public/config.js`. Sin esa URL el juego funciona igual: guarda las respuestas en cada celular y las envía cuando la URL exista.
 
 ## Correrlo en tu computador
 
@@ -51,6 +57,7 @@ Abre la dirección que aparece (por ejemplo `http://localhost:5173`). Otras órd
 ```bash
 npm run build      # genera la carpeta dist/ para publicar
 npm test           # pruebas automáticas con Playwright (tardan unos 4 minutos)
+npm run publicar   # compila y publica en GitHub Pages
 npm run qr -- URL  # genera qr-juego.png y qr-resultados.png para esa URL
 npm run imagenes   # vuelve a optimizar las fotos de assets/
 ```

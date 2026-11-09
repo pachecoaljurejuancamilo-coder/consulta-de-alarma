@@ -8,7 +8,8 @@
     "preview": "vite preview --port 4173",
     "test": "playwright test",
     "imagenes": "node scripts/optimizar-imagenes.mjs",
-    "qr": "node scripts/generar-qr.mjs"
+    "qr": "node scripts/generar-qr.mjs",
+    "publicar": "node scripts/publicar.mjs"
   },
   "type": "module",
   "dependencies": {
