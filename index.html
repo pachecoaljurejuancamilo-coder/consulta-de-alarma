@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#8E1B35" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="Juego educativo: atiende un turno de consulta y reconoce los signos de alarma que diferencian la endometriosis de la dismenorrea." />
+    <title>Consulta de Alarma</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 96'%3E%3Cpath d='M32 6C14 6 12 30 24 46L6 86l12 4 14-32 14 32 12-4-18-40C52 30 50 6 32 6Zm0 12c8 0 9 12 0 22-9-10-8-22 0-22Z' fill='%23F2C42C'/%3E%3C/svg%3E" />
+    <style>
+      /* Estilos mínimos de la pantalla de carga (se pintan antes que todo) */
+      html, body { margin: 0; background: #8E1B35; }
+      #cargador { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: radial-gradient(120% 90% at 50% 20%, #A8264A 0%, #8E1B35 45%, #5E0F24 100%); color: #FFF7F2; font-family: system-ui, sans-serif; transition: opacity .6s ease, visibility .6s; }
+      #cargador.oculto { opacity: 0; visibility: hidden; }
+      .carga-caja { width: min(320px, 84vw); text-align: center; }
+      .carga-cinta { width: 64px; height: 96px; margin: 0 auto 10px; animation: latir 1.1s ease-in-out infinite; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
+      .carga-ecg { width: 100%; height: 56px; }
+      .carga-ecg path { fill: none; stroke: #F2C42C; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 420; stroke-dashoffset: 420; animation: trazo 1.6s linear infinite; }
+      .carga-titulo { font-size: 1.5rem; font-weight: 800; margin: 6px 0 2px; letter-spacing: .01em; }
+      .carga-texto { font-size: .95rem; opacity: .9; min-height: 1.3em; }
+      .carga-barra { height: 8px; border-radius: 99px; background: rgba(255,255,255,.18); overflow: hidden; margin-top: 14px; }
+      .carga-barra i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #F4A3B7, #F2C42C); border-radius: inherit; transition: width .25s ease; }
+      @keyframes latir { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.12); } 30% { transform: scale(1); } 45% { transform: scale(1.07); } }
+      @keyframes trazo { to { stroke-dashoffset: 0; } }
+      @media (prefers-reduced-motion: reduce) { .carga-cinta, .carga-ecg path { animation: none; stroke-dashoffset: 0; } }
+    </style>
+    <script src="./config.js"></script>
+  </head>
+  <body>
+    <div id="cargador" role="status" aria-live="polite">
+      <div class="carga-caja">
+        <svg class="carga-cinta" viewBox="0 0 64 96" aria-hidden="true"><path d="M32 6C14 6 12 30 24 46L6 86l12 4 14-32 14 32 12-4-18-40C52 30 50 6 32 6Zm0 12c8 0 9 12 0 22-9-10-8-22 0-22Z" fill="#F2C42C" stroke="#B8901A" stroke-width="2"/></svg>
+        <svg class="carga-ecg" viewBox="0 0 320 56" aria-hidden="true"><path d="M0 30 H90 L102 30 L110 18 L118 30 L130 30 L138 4 L148 52 L156 30 L176 30 L188 22 L200 30 H320"/></svg>
+        <div class="carga-titulo">Consulta de Alarma</div>
+        <div class="carga-texto" id="carga-texto">Preparando el consultorio…</div>
+        <div class="carga-barra" aria-hidden="true"><i id="carga-barra"></i></div>
+        <div class="carga-texto" id="carga-pct" style="margin-top:8px;font-weight:700">0 %</div>
+      </div>
+    </div>
+
+    <canvas id="escena3d" aria-hidden="true"></canvas>
+    <div id="fondo2d" aria-hidden="true">
+      <span class="burbuja b1"></span><span class="burbuja b2"></span><span class="burbuja b3"></span>
+      <svg class="fondo-ecg" viewBox="0 0 600 120" preserveAspectRatio="none"><path d="M0 60 H170 L190 60 L204 40 L218 60 L236 60 L250 10 L266 108 L280 60 L314 60 L334 46 L354 60 H600"/></svg>
+    </div>
+
+    <div id="app">
+      <header id="barra" class="barra" hidden>
+        <div class="barra-etapa">
+          <span class="barra-cinta" aria-hidden="true"></span>
+          <span id="barra-etapa-texto">Etapa 1 · Consulta</span>
+        </div>
+        <div class="barra-reloj" role="timer" aria-label="Tiempo del turno">
+          <span class="reloj-icono" aria-hidden="true">⏱</span>
+          <span id="cronometro" data-segundos="0">0:00</span><span class="reloj-total">/ 3:00</span>
+        </div>
+        <div class="barra-puntos" aria-live="polite"><span aria-hidden="true">★</span> <span id="puntos">0</span><span class="sr">puntos</span></div>
+        <button id="btn-sonido" class="btn-icono" type="button" aria-pressed="false" aria-label="Silenciar sonido">🔊</button>
+        <div class="barra-progreso" aria-hidden="true">
+          <i class="seg s1"></i><i class="seg s2"></i><i class="seg s3"></i>
+          <b id="barra-avance"></b>
+        </div>
+      </header>
+      <main id="pantalla" tabindex="-1"></main>
+      <div id="capa-globo" aria-live="polite"></div>
+      <div id="capa-modal"></div>
+    </div>
+    <noscript>Activa JavaScript para jugar «Consulta de Alarma».</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

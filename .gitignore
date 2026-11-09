@@ -1,0 +1,9 @@
+node_modules
+dist
+test-results
+playwright-report
+capturas
+*.log
+capturas
+qr-*.png.tmp
+.claude
