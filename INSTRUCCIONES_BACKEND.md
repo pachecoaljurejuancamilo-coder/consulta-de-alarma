@@ -4,7 +4,7 @@ El juego funciona sin esto, pero así podrán ver todas las respuestas y el rank
 
 ## 1. Crear la hoja y el script
 
-1. Entra a [sheets.new](https://sheets.new) con tu cuenta de Google. Se crea una hoja de cálculo nueva. Ponle un nombre, por ejemplo «Respuestas Consulta de Alarma».
+1. Entra a [sheets.new](https://sheets.new) con tu cuenta de Google. Se crea una hoja de cálculo nueva. Ponle un nombre, por ejemplo «Respuestas Código Alarma 3D».
 2. En el menú, ve a **Extensiones > Apps Script**.
 3. Borra todo lo que aparece en el editor y pega el contenido completo del archivo `apps-script/Code.gs`.
 4. Pulsa el ícono de **guardar** (💾).
@@ -33,17 +33,18 @@ El juego funciona sin esto, pero así podrán ver todas las respuestas y el rank
    };
    ```
 
-3. Pulsa **Commit changes**. En 1 o 2 minutos el juego y el tablero publicados ya usan Google Sheets.
-4. Para que no se pierda si vuelven a publicar con `npm run publicar`, pega la misma URL en `public/config.js` de la carpeta del proyecto.
+3. Pulsa **Commit changes**. En 1 o 2 minutos el juego y el tablero publicados ya usan Google Sheets (el avance se ve en la pestaña **Actions** del repositorio).
+4. Para que no se pierda en la próxima publicación con `npm run publicar`, pega la misma URL en `public/config.js` de la rama `main` (https://github.com/pachecoaljurejuancamilo-coder/consulta-de-alarma/edit/main/public/config.js).
 
 ## 4. Comprobar que funciona
 
 - Abre la URL `/exec` en el navegador: debe mostrar un texto que empieza con `{"participantes":0,...`.
-- Juega una partida. Debe aparecer una fila nueva en la hoja «Respuestas».
+- Juega una partida (sin `?demo=1`: el modo demo no envía datos). Debe aparecer una fila nueva en la hoja «Respuestas».
 - Abre el tablero (`resultados.html`): el aviso amarillo desaparece y verás el ranking.
 
 ## Si algo falla
 
+- **Ya tenía la hoja del juego anterior:** pega el nuevo `Code.gs` y crea una **Nueva versión** de la implementación (ver abajo). Las columnas nuevas se agregan solas; si prefieres empezar limpio, borra la hoja «Respuestas» y se crea de nuevo.
 - **Cambié el código del script y no se nota:** en Apps Script ve a **Implementar > Gestionar implementaciones**, pulsa el lápiz, elige **Versión: Nueva versión** e **Implementar**. La URL no cambia.
 - **No llegan filas:** revisa que «Quién tiene acceso» sea **Cualquier usuario** (no «Cualquier usuario con cuenta de Google»).
 - **Sin internet en el salón:** las respuestas quedan guardadas en cada celular y se envían solas la próxima vez que abran el juego con conexión.

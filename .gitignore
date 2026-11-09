@@ -4,6 +4,6 @@ test-results
 playwright-report
 capturas
 *.log
-capturas
 qr-*.png.tmp
 .claude
+recursos-originales

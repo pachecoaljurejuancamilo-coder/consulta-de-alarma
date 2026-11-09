@@ -1,5 +1,5 @@
 /**
- * Backend del juego «Consulta de Alarma» (Google Apps Script + Google Sheets).
+ * Backend del juego «Código Alarma 3D» (Google Apps Script + Google Sheets).
  *
  * - doPost: recibe el JSON de cada partida y agrega una fila a la hoja «Respuestas».
  * - doGet:  devuelve el top 10, los promedios de opinión y las estadísticas del tablero.
@@ -13,16 +13,16 @@ var NOMBRE_HOJA = 'Respuestas';
 
 // Columnas en orden. Si el juego envía campos nuevos, se agregan al final automáticamente.
 var COLUMNAS = [
-  'fecha', 'id', 'nombre', 'semestre', 'puntaje', 'rango',
-  'puntaje_consulta', 'puntaje_hallazgos',
-  'tarjetas_correctas', 'decisiones_correctas', 'preguntas_correctas',
-  'caso_sofia', 'caso_valentina', 'caso_mariana',
+  'fecha', 'id', 'version', 'nombre', 'semestre', 'avatar', 'puntaje', 'rango',
+  'vida_final', 'bono_vida', 'mitos_destruidos',
+  'orbes_correctos', 'orbes_incorrectos', 'orbes_alarma_recogidos', 'orbes_esperables_recogidos',
+  'm1_destino', 'm1_ok', 'm2_destino', 'm2_ok', 'm3_destino', 'm3_ok', 'misiones_correctas',
   't_s_inicio', 't_s_dos_dias', 't_s_ibuprofeno', 't_s_examen', 't_s_mama',
   't_v_aine', 't_v_disquecia', 't_v_ausentismo', 't_v_no_ciclico', 't_v_menarquia',
-  't_m_dispareunia', 't_m_urinario', 't_m_infertilidad', 't_m_ciclos', 't_m_sangrado',
-  'p1', 'p1_ok', 'p2', 'p2_ok', 'p3', 'p3_ok', 'p4', 'p4_ok',
-  'op_entendiste', 'op_innovador', 'op_reconocerias', 'op_palabra',
-  'tiempo_total_s', 'fecha_local'
+  't_m_dispareunia', 't_m_urinario', 't_m_infertilidad', 't_m_ciclos',
+  'p1', 'p1_ok', 'p2', 'p2_ok', 'p3', 'p3_ok', 'p4', 'p4_ok', 'preguntas_correctas',
+  'op_entendiste', 'op_innovador', 'op_reconocerias',
+  'tiempo_total_s', 'dispositivo', 'calidad', 'fecha_local'
 ];
 
 function obtenerHoja_() {
@@ -41,7 +41,7 @@ function obtenerHoja_() {
 function limpiar_(v) {
   if (v === null || v === undefined) return '';
   if (typeof v === 'number' || typeof v === 'boolean') return v;
-  var s = String(v).slice(0, 120);
+  var s = String(v).slice(0, 400);
   if (/^[=+\-@]/.test(s)) s = "'" + s;
   return s;
 }
@@ -110,16 +110,18 @@ function respuesta_(obj) {
 // ---- Misma lógica que src/agregar.js ----
 function agregar(filas) {
   function num(v) {
+    if (v === null || v === undefined || v === '') return null;
     var n = Number(String(v).replace(',', '.'));
-    return isFinite(n) && String(v) !== '' ? n : null;
+    return isFinite(n) ? n : null;
   }
+  function suma(a, b) { return a + b; }
   var ranking = filas.map(function (f) {
-    return { id: f.id, nombre: f.nombre || 'Anónimo', semestre: f.semestre || '', puntaje: num(f.puntaje) || 0, tiempo: num(f.tiempo_total_s) || 0 };
+    return { id: f.id, nombre: f.nombre || 'Anónimo', semestre: f.semestre || '', avatar: f.avatar || '', puntaje: num(f.puntaje) || 0, tiempo: num(f.tiempo_total_s) || 0 };
   }).sort(function (a, b) { return b.puntaje - a.puntaje || a.tiempo - b.tiempo; }).slice(0, 10);
 
   function promedio(clave) {
     var vals = filas.map(function (f) { return num(f[clave]); }).filter(function (v) { return v !== null && v > 0; });
-    return vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : null;
+    return vals.length ? vals.reduce(suma, 0) / vals.length : null;
   }
   function distribucion(clave, valores) {
     var d = {};
@@ -133,25 +135,20 @@ function agregar(filas) {
     filas.forEach(function (f) { Object.keys(f).forEach(function (k) { if (k.indexOf(prefijo) === 0) claves[k] = true; }); });
     Object.keys(claves).forEach(function (k) {
       var vals = filas.map(function (f) { return num(f[k]); }).filter(function (v) { return v !== null; });
-      res[k.slice(prefijo.length)] = vals.length ? 100 * vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : null;
+      res[k.slice(prefijo.length)] = vals.length ? 100 * vals.reduce(suma, 0) / vals.length : null;
     });
     return res;
   }
+  function pctOk(clave) {
+    var vals = filas.map(function (f) { return num(f[clave]); }).filter(function (v) { return v !== null; });
+    return vals.length ? 100 * vals.reduce(suma, 0) / vals.length : null;
+  }
   var preguntas = {};
-  ['p1', 'p2', 'p3', 'p4'].forEach(function (p) {
-    var vals = filas.map(function (f) { return num(f[p + '_ok']); }).filter(function (v) { return v !== null; });
-    preguntas[p] = vals.length ? 100 * vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : null;
-  });
-  var conteo = {};
-  filas.forEach(function (f) {
-    var p = String(f.op_palabra || '').trim();
-    if (!p) return;
-    var k = p.toLowerCase();
-    if (!conteo[k]) conteo[k] = { palabra: p.charAt(0).toUpperCase() + p.slice(1), n: 0 };
-    conteo[k].n++;
-  });
-  var palabras = Object.keys(conteo).map(function (k) { return conteo[k]; })
-    .sort(function (a, b) { return b.n - a.n; }).slice(0, 60);
+  ['p1', 'p2', 'p3', 'p4'].forEach(function (p) { preguntas[p] = pctOk(p + '_ok'); });
+  var misiones = {};
+  ['m1', 'm2', 'm3'].forEach(function (m) { misiones[m] = pctOk(m + '_ok'); });
+  var avatares = {};
+  filas.forEach(function (f) { if (f.avatar) avatares[f.avatar] = (avatares[f.avatar] || 0) + 1; });
   var sem = {};
   filas.forEach(function (f) {
     var s = f.semestre || 'Otro';
@@ -162,7 +159,7 @@ function agregar(filas) {
   return {
     participantes: filas.length,
     ranking: ranking,
-    promedios: { entendiste: promedio('op_entendiste'), innovador: promedio('op_innovador') },
+    promedios: { entendiste: promedio('op_entendiste'), innovador: promedio('op_innovador'), puntaje: promedio('puntaje') },
     distribucion: {
       entendiste: distribucion('op_entendiste', ['1', '2', '3', '4', '5']),
       innovador: distribucion('op_innovador', ['1', '2', '3', '4', '5']),
@@ -170,7 +167,8 @@ function agregar(filas) {
     },
     tarjetas: porcentajes('t_'),
     preguntas: preguntas,
-    palabras: palabras,
+    misiones: misiones,
+    avatares: avatares,
     porSemestre: Object.keys(sem).map(function (s) { return { semestre: s, n: sem[s].n, promedio: sem[s].suma / sem[s].n }; }),
     actualizado: new Date().toISOString()
   };
@@ -178,6 +176,6 @@ function agregar(filas) {
 
 // Prueba manual desde el editor: ejecuta esta función y revisa la hoja.
 function probarEnvio() {
-  doPost({ postData: { contents: JSON.stringify({ id: 'prueba-' + Date.now(), nombre: 'Prueba', semestre: 'Docente', puntaje: 200, op_palabra: 'Remitir' }) } });
+  doPost({ postData: { contents: JSON.stringify({ id: 'prueba-' + Date.now(), version: '3d', nombre: 'Prueba', semestre: 'Docente', avatar: 'Liz Olivieri', puntaje: 250, m1_ok: 1, op_entendiste: 5, op_reconocerias: 'Sí' }) } });
   Logger.log(JSON.stringify(agregar([]).participantes));
 }
